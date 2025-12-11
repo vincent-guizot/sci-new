@@ -22,23 +22,34 @@ const Members = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await addMember(formData);
+    try {
+      const result = await addMember(formData);
+      if (result) {
+        Swal.fire({
+          title: "Success",
+          text: "Member added successfully",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
 
-    Swal.fire({
-      title: "Success",
-      text: "Member added successfully",
-      icon: "success",
-      timer: 1500,
-      showConfirmButton: false,
-    });
-
-    setFormData({
-      fullName: "",
-      number: "",
-      address: "",
-      image: "",
-      gender: "M",
-    });
+        setFormData({
+          fullName: "",
+          number: "",
+          address: "",
+          image: "",
+          gender: "M",
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: `${error}`,
+        icon: "error",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
   };
 
   const filteredMembers = filterGender
@@ -54,17 +65,53 @@ const Members = () => {
         </h2>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
-          {/* Name */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Full Name</label>
-            <input
-              type="text"
-              name="fullName"
-              placeholder="Enter full name"
-              value={formData.fullName}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-            />
+          {/* Full Name + Gender */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Full Name */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Full Name
+              </label>
+              <input
+                type="text"
+                name="fullName"
+                placeholder="Enter full name"
+                value={formData.fullName}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-md px-3 py-2"
+              />
+            </div>
+
+            {/* Gender Buttons */}
+            <div className="flex flex-col">
+              <label className="text-sm font-medium mb-1">Gender</label>
+
+              <div className="flex gap-3 mt-1">
+                <button
+                  type="button"
+                  className={`px-4 py-2 border rounded-md w-full ${
+                    formData.gender === "M"
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "border-gray-300"
+                  }`}
+                  onClick={() => setFormData((p) => ({ ...p, gender: "M" }))}
+                >
+                  Male
+                </button>
+
+                <button
+                  type="button"
+                  className={`px-4 py-2 border rounded-md w-full ${
+                    formData.gender === "F"
+                      ? "bg-pink-500 text-white border-pink-500"
+                      : "border-gray-300"
+                  }`}
+                  onClick={() => setFormData((p) => ({ ...p, gender: "F" }))}
+                >
+                  Female
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Number */}
@@ -80,40 +127,22 @@ const Members = () => {
             />
           </div>
 
-          {/* Gender */}
+          {/* Address */}
           <div>
-            <label className="block text-sm font-medium mb-1">Gender</label>
-            <div className="flex gap-6">
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="radio"
-                  name="gender"
-                  value="M"
-                  checked={formData.gender === "M"}
-                  onChange={handleChange}
-                  className="accent-blue-600"
-                />
-                <span>Male</span>
-              </label>
-
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="radio"
-                  name="gender"
-                  value="F"
-                  checked={formData.gender === "F"}
-                  onChange={handleChange}
-                  className="accent-pink-600"
-                />
-                <span>Female</span>
-              </label>
-            </div>
+            <label className="block text-sm font-medium mb-1">Address</label>
+            <textarea
+              name="address"
+              placeholder="Enter address"
+              value={formData.address}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-md px-3 py-2"
+            ></textarea>
           </div>
 
           {/* Submit */}
           <button
             type="submit"
-            className="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition"
+            className="w-full bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition"
             disabled={!formData.fullName || !formData.number}
           >
             Add Member
@@ -124,12 +153,12 @@ const Members = () => {
       <hr />
 
       {/* TABLE */}
-      <div className="bg-stone-100 p-4 rounded-lg">
+      <div className="p-4 rounded-lg">
         <h2 className="text-lg font-semibold mb-4 text-green-700">
           Members List
         </h2>
 
-        {/* Filter Buttons (masih pakai daisyUI — kalau mau ganti pure Tailwind bilang saja */}
+        {/* Filter Buttons */}
         <div className="flex gap-2 mb-4">
           <button
             className={`px-3 py-1 text-sm border rounded-md ${

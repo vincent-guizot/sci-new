@@ -19,10 +19,15 @@ const useMembers = () => {
 
   const addMember = async (member) => {
     try {
-      await axios.post("http://localhost:4000/participants", member);
+      const result = await axios.post(
+        "http://localhost:4000/participants",
+        member
+      );
       fetchMembers(); // refresh data
+
+      return result;
     } catch (err) {
-      console.error(err);
+      throw err;
     }
   };
 
