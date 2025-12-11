@@ -6,7 +6,7 @@ const Layout = () => {
     <div className="min-h-screen flex flex-col">
       {/* Bagian atas: Logo */}
       <div className="bg-primary text-white p-4 text-2xl font-bold flex justify-center">
-        <img width="100px" src="./logo.png" alt="Image Logo" />
+        <img width="50px" src="./logo.png" alt="Image Logo" />
       </div>
 
       {/* Bagian bawah: Navbar */}

@@ -25,8 +25,8 @@ const Members = () => {
     await addMember(formData);
 
     Swal.fire({
-      title: "Success!",
-      text: "Member has been added.",
+      title: "Success",
+      text: "Member added successfully",
       icon: "success",
       timer: 1500,
       showConfirmButton: false,
@@ -48,76 +48,72 @@ const Members = () => {
   return (
     <div className="p-4 space-y-6">
       {/* FORM */}
-      <div className="bg-base-200 p-3">
-        <h2 className="text-lg font-semibold mb-4">Add Member</h2>
+      <div className="p-4 rounded-lg">
+        <h2 className="text-lg font-semibold mb-4 text-green-700">
+          Add Member
+        </h2>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
-          {/* NAME */}
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Full Name</span>
-            </label>
+          {/* Name */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Full Name</label>
             <input
               type="text"
               name="fullName"
               placeholder="Enter full name"
               value={formData.fullName}
               onChange={handleChange}
-              className="input input-bordered border-base-300 w-full"
+              className="w-full border border-gray-300 rounded-md px-3 py-2"
             />
           </div>
 
-          {/* NUMBER */}
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Number</span>
-            </label>
+          {/* Number */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Number</label>
             <input
               type="text"
               name="number"
               placeholder="Enter number"
               value={formData.number}
               onChange={handleChange}
-              className="input input-bordered border-base-300 w-full"
+              className="w-full border border-gray-300 rounded-md px-3 py-2"
             />
           </div>
 
-          {/* GENDER */}
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Gender</span>
-            </label>
+          {/* Gender */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Gender</label>
             <div className="flex gap-6">
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-2 text-sm">
                 <input
                   type="radio"
                   name="gender"
                   value="M"
                   checked={formData.gender === "M"}
                   onChange={handleChange}
-                  className="radio radio-sm"
+                  className="accent-blue-600"
                 />
                 <span>Male</span>
               </label>
 
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-2 text-sm">
                 <input
                   type="radio"
                   name="gender"
                   value="F"
                   checked={formData.gender === "F"}
                   onChange={handleChange}
-                  className="radio radio-sm"
+                  className="accent-pink-600"
                 />
                 <span>Female</span>
               </label>
             </div>
           </div>
 
-          {/* SUBMIT */}
+          {/* Submit */}
           <button
             type="submit"
-            className="btn btn-primary"
+            className="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition"
             disabled={!formData.fullName || !formData.number}
           >
             Add Member
@@ -128,30 +124,34 @@ const Members = () => {
       <hr />
 
       {/* TABLE */}
-      <div className="bg-base-200 p-3 rounded-xl shadow-sm">
-        <h2 className="text-lg font-semibold mb-4">Members List</h2>
+      <div className="bg-stone-100 p-4 rounded-lg">
+        <h2 className="text-lg font-semibold mb-4 text-green-700">
+          Members List
+        </h2>
 
-        {/* FILTER */}
+        {/* Filter Buttons (masih pakai daisyUI — kalau mau ganti pure Tailwind bilang saja */}
         <div className="flex gap-2 mb-4">
           <button
-            className={`btn btn-xs ${
-              filterGender === "" ? "btn-primary" : "btn-outline"
+            className={`px-3 py-1 text-sm border rounded-md ${
+              filterGender === "" ? "bg-blue-600 text-white" : "bg-white"
             }`}
             onClick={() => setFilterGender("")}
           >
             All
           </button>
+
           <button
-            className={`btn btn-xs ${
-              filterGender === "M" ? "btn-primary" : "btn-outline"
+            className={`px-3 py-1 text-sm border rounded-md ${
+              filterGender === "M" ? "bg-blue-600 text-white" : "bg-white"
             }`}
             onClick={() => setFilterGender("M")}
           >
             Male
           </button>
+
           <button
-            className={`btn btn-xs ${
-              filterGender === "F" ? "btn-primary" : "btn-outline"
+            className={`px-3 py-1 text-sm border rounded-md ${
+              filterGender === "F" ? "bg-blue-600 text-white" : "bg-white"
             }`}
             onClick={() => setFilterGender("F")}
           >
@@ -163,24 +163,30 @@ const Members = () => {
           <p>Loading members...</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="table w-full border border-base-100 py-3 px-2">
-              <thead>
-                <tr className="bg-base-100 text-sm">
-                  <th className="border border-base-100">Name</th>
-                  <th className="border border-base-100">Number</th>
-                  <th className="border border-base-100">Gender</th>
-                  <th className="border border-base-100">Address</th>
+            <table className="w-full border border-gray-300 text-sm">
+              <thead className="bg-gray-200">
+                <tr>
+                  <th className="border border-gray-300 px-3 py-2">Name</th>
+                  <th className="border border-gray-300 px-3 py-2">Number</th>
+                  <th className="border border-gray-300 px-3 py-2">Gender</th>
+                  <th className="border border-gray-300 px-3 py-2">Address</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredMembers.map((member) => (
-                  <tr key={member.id}>
-                    <td className="border border-base-100">
+                  <tr key={member.id} className="hover:bg-gray-50">
+                    <td className="border border-gray-300 px-3 py-2">
                       {member.fullName}
                     </td>
-                    <td className="border border-base-100">{member.number}</td>
-                    <td className="border border-base-100">{member.gender}</td>
-                    <td className="border border-base-100">{member.address}</td>
+                    <td className="border border-gray-300 px-3 py-2">
+                      {member.number}
+                    </td>
+                    <td className="border border-gray-300 px-3 py-2">
+                      {member.gender}
+                    </td>
+                    <td className="border border-gray-300 px-3 py-2">
+                      {member.address}
+                    </td>
                   </tr>
                 ))}
               </tbody>

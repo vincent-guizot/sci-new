@@ -1,31 +1,43 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Swal from "sweetalert2";
 import useMembers from "../hooks/useMember";
 
 const MatchMaking = () => {
   const { members, loading } = useMembers();
 
-  // Participant 1 state
   const [p1Number, setP1Number] = useState("");
   const [p1Gender, setP1Gender] = useState("M");
   const [p1Username, setP1Username] = useState("");
 
-  // Participant 2 state
   const [p2Gender, setP2Gender] = useState("F");
   const [p2Selection, setP2Selection] = useState([]);
 
-  // Status submit
   const [submitting, setSubmitting] = useState(false);
 
-  // Update Participant 1 username real-time
+  // 🔥 Fetch Participant 1 name from API (NOT members)
   useEffect(() => {
-    const member = members.find(
-      (m) => m.number === p1Number && m.gender === p1Gender
-    );
-    setP1Username(member ? member.name : "");
-  }, [p1Number, p1Gender, members]);
+    if (!p1Number) {
+      setP1Username("");
+      return;
+    }
 
-  // Update Participant 2 gender opposite of Participant 1
+    const fetchP1 = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:4000/participants/${p1Number}`
+        );
+        setP1Username(res.data.fullName || "");
+        setP1Gender(res.data.gender || "M"); // optional auto-gender
+      } catch (err) {
+        setP1Username("Not found");
+      }
+    };
+
+    fetchP1();
+  }, [p1Number]);
+
+  // Auto-set P2 gender
   useEffect(() => {
     setP2Gender(p1Gender === "M" ? "F" : "M");
     setP2Selection([]);
@@ -39,10 +51,9 @@ const MatchMaking = () => {
     }
   };
 
-  // Submit likes
   const handleSubmit = async () => {
     if (!p1Number || p2Selection.length === 0) {
-      alert("Please select Participant 1 and at least one Participant 2");
+      Swal.fire("Error", "Fill Participant 1 & choose Participant 2", "error");
       return;
     }
 
@@ -54,125 +65,159 @@ const MatchMaking = () => {
     try {
       setSubmitting(true);
       await axios.post("http://localhost:4000/likes", payload);
-      alert("Likes submitted!");
-      // Reset selections
+
+      Swal.fire("Success", "Likes submitted!", "success");
+
       setP1Number("");
       setP1Gender("M");
       setP1Username("");
       setP2Selection([]);
     } catch (err) {
-      console.error(err);
-      alert("Failed to submit likes");
+      Swal.fire("Error", "Failed submitting likes", "error");
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="p-4 space-y-8">
-      {/* Participant 1 */}
-      <div className="bg-base-200 p-4 rounded-lg shadow-md">
-        <h2 className="text-xl font-bold mb-4">Participant 1</h2>
-        {loading ? (
-          <p>Loading members...</p>
-        ) : (
-          <div className="flex flex-col space-y-4">
-            <select
-              className="select select-bordered w-full"
-              value={p1Number}
-              onChange={(e) => setP1Number(e.target.value)}
-            >
-              <option value="">Select Number</option>
-              {members
-                .filter((m) => m.gender === p1Gender)
-                .map((m) => (
+  <div className="p-4 space-y-10">
+    {/* ========================= PARTICIPANT 1 ========================= */}
+    <div className="bg-white p-5 rounded-lg shadow-sm">
+      <h2 className="text-xl font-semibold mb-4">Participant 1</h2>
+
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <div className="space-y-5">
+
+          {/* SELECT NUMBER + GENDER SIDE BY SIDE */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+            {/* Select Number */}
+            <div className="flex flex-col">
+              <label className="text-sm font-medium mb-1">Select Number</label>
+              <select
+                className="border border-gray-300 rounded-md px-3 py-2"
+                value={p1Number}
+                onChange={(e) => setP1Number(e.target.value)}
+              >
+                <option value="">Choose number...</option>
+                {members.map((m) => (
                   <option key={m.number} value={m.number}>
                     {m.number}
                   </option>
                 ))}
-            </select>
-
-            <div className="flex space-x-4">
-              <label className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  name="p1Gender"
-                  value="M"
-                  checked={p1Gender === "M"}
-                  onChange={(e) => setP1Gender(e.target.value)}
-                  className="radio"
-                />
-                <span>M</span>
-              </label>
-              <label className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  name="p1Gender"
-                  value="F"
-                  checked={p1Gender === "F"}
-                  onChange={(e) => setP1Gender(e.target.value)}
-                  className="radio"
-                />
-                <span>F</span>
-              </label>
+              </select>
             </div>
 
+            {/* Gender Square Buttons */}
+            <div className="flex flex-col">
+              <label className="text-sm font-medium mb-1">Gender</label>
+
+              <div className="flex gap-3 mt-1">
+                <button
+                  type="button"
+                  className={`px-4 py-2 border rounded-md w-full ${
+                    p1Gender === "M"
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "border-gray-300"
+                  }`}
+                  onClick={() => setP1Gender("M")}
+                >
+                  Male
+                </button>
+
+                <button
+                  type="button"
+                  className={`px-4 py-2 border rounded-md w-full ${
+                    p1Gender === "F"
+                      ? "bg-pink-500 text-white border-pink-500"
+                      : "border-gray-300"
+                  }`}
+                  onClick={() => setP1Gender("F")}
+                >
+                  Female
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Full Name */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-1">Full Name</label>
             <input
               type="text"
               value={p1Username}
               readOnly
-              placeholder="Username"
-              className="input input-bordered w-full"
+              className="border border-gray-300 rounded-md px-3 py-2 bg-gray-50"
             />
           </div>
-        )}
-      </div>
+        </div>
+      )}
+    </div>
 
-      {/* Participant 2 */}
-      <div className="bg-base-200 p-4 rounded-lg shadow-md">
-        <h2 className="text-xl font-bold mb-4">
-          Participant 2 (Gender: {p2Gender})
-        </h2>
-        {loading ? (
-          <p>Loading members...</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+    {/* ========================= PARTICIPANT 2 ========================= */}
+    <div className="bg-white p-5 rounded-lg shadow-sm">
+      <h2 className="text-xl font-semibold mb-4">
+        Participant 2 (Gender: {p2Gender})
+      </h2>
+
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <>
+          {/* Responsive grid: 2 mobile, 3 tablet+ */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {members
               .filter((m) => m.gender === p2Gender)
-              .map((m) => (
-                <button
-                  key={m.number}
-                  onClick={() => handleP2Select(m)}
-                  className={`card p-4 border rounded-lg shadow-md text-center transition-all duration-200 ${
-                    p2Selection.some((sel) => sel.number === m.number)
-                      ? "border-primary bg-primary text-white scale-105"
-                      : "hover:border-primary hover:scale-105"
-                  }`}
-                >
-                  <p className="font-bold">{m.name}</p>
-                  <p>{m.number}</p>
-                </button>
-              ))}
-          </div>
-        )}
-        <p className="mt-4">
-          Selected ({p2Selection.length}/3):{" "}
-          {p2Selection.map((m) => m.name).join(", ")}
-        </p>
-      </div>
+              .map((m) => {
+                const isSelected = p2Selection.some(
+                  (sel) => sel.number === m.number
+                );
 
-      {/* Submit button */}
-      <div className="flex justify-end">
-        <button
-          onClick={handleSubmit}
-          className="btn btn-success"
-          disabled={submitting}
-        >
-          {submitting ? "Submitting..." : "Submit Likes"}
-        </button>
-      </div>
+                return (
+                  <div
+                    key={m.number}
+                    role="button"
+                    onClick={() => handleP2Select(m)}
+                    className={`border rounded-lg p-4 text-center cursor-pointer transition-all ${
+                      isSelected
+                        ? "border-blue-500 bg-blue-500 text-white scale-105"
+                        : "border-gray-300 hover:border-blue-500 hover:scale-105"
+                    }`}
+                  >
+                    <p className="font-semibold text-sm md:text-base">
+                      {m.fullName}
+                    </p>
+                    <p className="text-xs opacity-80 md:text-sm">{m.number}</p>
+                  </div>
+                );
+              })}
+          </div>
+
+          <p className="mt-4 text-sm">
+            Selected ({p2Selection.length}/3):{" "}
+            <span className="font-medium">
+              {p2Selection.map((m) => m.fullName).join(", ")}
+            </span>
+          </p>
+        </>
+      )}
     </div>
-  );
+
+    {/* ========================= SUBMIT BUTTON ========================= */}
+    <div>
+      <button
+        onClick={handleSubmit}
+        disabled={submitting}
+        className="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-sm shadow-sm disabled:opacity-50"
+      >
+        {submitting ? "Submitting..." : "Submit Likes"}
+      </button>
+    </div>
+  </div>
+);
+
 };
 
 export default MatchMaking;
