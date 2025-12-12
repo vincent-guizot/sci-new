@@ -8,7 +8,9 @@ const useMembers = () => {
   const fetchMembers = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:4000/participants");
+      const res = await axios.get(
+        "https://sci-mongo.onrender.com/participants"
+      );
       setMembers(res.data);
     } catch (err) {
       console.error(err);
@@ -20,7 +22,7 @@ const useMembers = () => {
   const addMember = async (member) => {
     try {
       const result = await axios.post(
-        "http://localhost:4000/participants",
+        "https://sci-mongo.onrender.com/participants",
         member
       );
       fetchMembers(); // refresh data

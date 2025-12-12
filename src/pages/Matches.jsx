@@ -10,7 +10,7 @@ const Matches = () => {
   const fetchMatches = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:4000/matches");
+      const res = await axios.get("https://sci-mongo.onrender.com/matches");
       setMatches(res.data);
     } catch (err) {
       console.error(err);
