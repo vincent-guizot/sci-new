@@ -59,98 +59,6 @@ const Members = () => {
   return (
     <div className="p-4 space-y-6">
       {/* FORM */}
-      <div className="p-4 rounded-lg">
-        <h2 className="text-lg font-semibold mb-4 text-green-700">
-          Add Member
-        </h2>
-
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          {/* Full Name + Gender */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* Full Name */}
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Full Name
-              </label>
-              <input
-                type="text"
-                name="fullName"
-                placeholder="Enter full name"
-                value={formData.fullName}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
-              />
-            </div>
-
-            {/* Gender Buttons */}
-            <div className="flex flex-col">
-              <label className="text-sm font-medium mb-1">Gender</label>
-
-              <div className="flex gap-3 mt-1">
-                <button
-                  type="button"
-                  className={`px-4 py-2 border rounded-md w-full ${
-                    formData.gender === "M"
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "border-gray-300"
-                  }`}
-                  onClick={() => setFormData((p) => ({ ...p, gender: "M" }))}
-                >
-                  Male
-                </button>
-
-                <button
-                  type="button"
-                  className={`px-4 py-2 border rounded-md w-full ${
-                    formData.gender === "F"
-                      ? "bg-pink-500 text-white border-pink-500"
-                      : "border-gray-300"
-                  }`}
-                  onClick={() => setFormData((p) => ({ ...p, gender: "F" }))}
-                >
-                  Female
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Number */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Number</label>
-            <input
-              type="text"
-              name="number"
-              placeholder="Enter number"
-              value={formData.number}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-            />
-          </div>
-
-          {/* Address */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Address</label>
-            <textarea
-              name="address"
-              placeholder="Enter address"
-              value={formData.address}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-            ></textarea>
-          </div>
-
-          {/* Submit */}
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition"
-            disabled={!formData.fullName || !formData.number}
-          >
-            Add Member
-          </button>
-        </form>
-      </div>
-
-      <hr />
 
       {/* TABLE */}
       <div className="p-4 rounded-lg">
@@ -195,7 +103,7 @@ const Members = () => {
             <table className="w-full border border-gray-300 text-sm">
               <thead className="bg-gray-200">
                 <tr>
-                  <th className="border border-gray-300 px-3 py-2">Id</th>
+                  {/* <th className="border border-gray-300 px-3 py-2">Id</th> */}
                   <th className="border border-gray-300 px-3 py-2">Name</th>
                   <th className="border border-gray-300 px-3 py-2">Number</th>
                   <th className="border border-gray-300 px-3 py-2">Gender</th>
@@ -205,9 +113,9 @@ const Members = () => {
               <tbody>
                 {filteredMembers.map((member) => (
                   <tr key={member.id} className="hover:bg-gray-50">
-                    <td className="border border-gray-300 px-3 py-2">
+                    {/* <td className="border border-gray-300 px-3 py-2">
                       {member.id}
-                    </td>
+                    </td> */}
                     <td className="border border-gray-300 px-3 py-2">
                       {member.fullName}
                     </td>
