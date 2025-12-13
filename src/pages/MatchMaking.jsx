@@ -67,7 +67,8 @@ const MatchMaking = () => {
         <option value="">Choose Participant</option>
         {members.map((m) => (
           <option key={m._id} value={m._id}>
-            {m.number} -{m.fullName} - ({m.gender})
+            {m.number}
+            {m.gender === "M" ? "M" : "W"} -{m.fullName}
           </option>
         ))}
       </select>
@@ -90,7 +91,7 @@ const MatchMaking = () => {
                   }`}
                 >
                   <p className="font-semibold">{m.fullName}</p>
-                  <p className="text-xs">{m.number}</p>
+                  <p className="text-lg font-bold">{m.number}</p>
                 </div>
               );
             })}
