@@ -72,7 +72,7 @@ const Members = () => {
               filterGender === g ? "bg-blue-600 text-white" : "bg-white"
             }`}
           >
-            {g === "" ? "All" : g === "M" ? "Male" : "Female"}
+            {g === "" ? "All" : g === "M" ? "Man" : "Woman"}
           </button>
         ))}
       </div>
