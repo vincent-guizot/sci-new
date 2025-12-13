@@ -75,7 +75,7 @@ const MatchMaking = () => {
               : "bg-white hover:bg-blue-50"
           }`}
         >
-          <FaMale /> Male
+          <FaMale /> Man
         </button>
         <button
           onClick={() => {
