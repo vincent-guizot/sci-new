@@ -4,6 +4,7 @@ import Layout from "../layouts/Layout";
 import Members from "../pages/Members";
 import MatchMaking from "../pages/MatchMaking";
 import Matches from "../pages/Matches";
+import ParticipantsLiked from "../pages/ParticipantsLiked";
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
       {
         path: "/matches",
         element: <Matches />,
+      },
+      {
+        path: "/participants-liked",
+        element: <ParticipantsLiked />,
       },
     ],
   },

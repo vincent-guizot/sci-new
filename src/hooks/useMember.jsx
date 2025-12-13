@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import API from "../config/api";
 
 const useMembers = () => {
   const [members, setMembers] = useState([]);
@@ -8,9 +8,7 @@ const useMembers = () => {
   const fetchMembers = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(
-        "https://sci-mongo.onrender.com/participants"
-      );
+      const res = await API.get("/participants");
       setMembers(res.data);
     } catch (err) {
       console.error(err);
@@ -20,17 +18,9 @@ const useMembers = () => {
   };
 
   const addMember = async (member) => {
-    try {
-      const result = await axios.post(
-        "https://sci-mongo.onrender.com/participants",
-        member
-      );
-      fetchMembers(); // refresh data
-
-      return result;
-    } catch (err) {
-      throw err;
-    }
+    const res = await API.post("/participants", member);
+    fetchMembers();
+    return res;
   };
 
   useEffect(() => {

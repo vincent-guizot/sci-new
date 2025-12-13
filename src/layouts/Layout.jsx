@@ -51,6 +51,20 @@ const Layout = () => {
           >
             Matches
           </NavLink>
+
+          {/* 🔥 MENU BARU */}
+          <NavLink
+            to="/participants-liked"
+            className={({ isActive }) =>
+              `px-4 py-2 rounded-md transition ${
+                isActive
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-700 hover:bg-gray-300"
+              }`
+            }
+          >
+            Participants Liked
+          </NavLink>
         </div>
       </div>
 

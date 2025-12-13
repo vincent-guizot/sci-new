@@ -1,194 +1,106 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import Swal from "sweetalert2";
+import API from "../config/api";
 import useMembers from "../hooks/useMember";
 
 const MatchMaking = () => {
   const { members, loading } = useMembers();
 
-  const [p1Gender, setP1Gender] = useState("M");
-  const [p1Number, setP1Number] = useState("");
-
-  const [p2Gender, setP2Gender] = useState("F");
-  const [p2Selection, setP2Selection] = useState([]);
-
-  const [likesCount, setLikesCount] = useState({});
+  const [participantId, setParticipantId] = useState("");
+  const [selectedLikes, setSelectedLikes] = useState([]);
   const [submitting, setSubmitting] = useState(false);
 
-  const API = "https://sci-mongo.onrender.com";
+  const participant = members.find((m) => m._id === participantId);
+  const oppositeGender = participant?.gender === "M" ? "F" : "M";
 
-  // Auto switch P2 gender when P1 gender changes
-  useEffect(() => {
-    setP2Gender(p1Gender === "M" ? "F" : "M");
-    setP2Selection([]);
-    fetchLikesCount();
-  }, [p1Gender]);
-
-  // Fetch total likes
-  const fetchLikesCount = async () => {
-    try {
-      const res = await axios.get(`${API}/likes`);
-      const countObj = {};
-      res.data.forEach((like) => {
-        countObj[like.fromNumber] = (countObj[like.fromNumber] || 0) + 1;
-      });
-      setLikesCount(countObj);
-    } catch (err) {
-      console.error(err);
+  const toggleLike = (id) => {
+    if (selectedLikes.includes(id)) {
+      setSelectedLikes(selectedLikes.filter((x) => x !== id));
+      return;
     }
+
+    if (selectedLikes.length >= 4) {
+      Swal.fire("Limit", "Max 4 likes allowed", "warning");
+      return;
+    }
+
+    setSelectedLikes([...selectedLikes, id]);
   };
 
-  // Handle P2 select
-  const handleP2Select = (member) => {
-    if (p2Selection.some((m) => m.number === member.number)) {
-      setP2Selection(p2Selection.filter((m) => m.number !== member.number));
+  const submitLikes = async () => {
+    if (!participantId || selectedLikes.length === 0) {
+      Swal.fire("Error", "Select participant & likes", "error");
       return;
     }
-
-    const currentLikes = likesCount[p1Number] || 0;
-    if (currentLikes >= 4 || p2Selection.length >= 4) {
-      Swal.fire("Limit reached", "Max 4 selections allowed", "warning");
-      return;
-    }
-
-    setP2Selection([...p2Selection, member]);
-  };
-
-  // Submit likes
-  const handleSubmit = async () => {
-    if (!p1Number || p2Selection.length === 0) {
-      Swal.fire("Error", "Please choose number & select participants", "error");
-      return;
-    }
-
-    const payload = {
-      fromNumber: +p1Number,
-      toNumbers: p2Selection.map((m) => m.number),
-    };
 
     try {
       setSubmitting(true);
-      await axios.post(`${API}/likes`, payload);
-      Swal.fire("Success", "Likes submitted!", "success");
+      await API.post("/likes/submit", {
+        participantId,
+        likes: selectedLikes,
+      });
 
-      setP1Number("");
-      setP2Selection([]);
-      fetchLikesCount();
+      Swal.fire("Success", "Likes submitted!", "success");
+      setSelectedLikes([]);
     } catch (err) {
-      Swal.fire(
-        "Error",
-        err.response?.data?.message || "Failed submitting likes",
-        "error"
-      );
+      Swal.fire("Error", err.response?.data?.message || "Failed", "error");
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (loading) return <p className="p-4">Loading members...</p>;
+  if (loading) return <p>Loading...</p>;
 
   return (
-    <div className="p-4 space-y-10">
-      {/* Participant 1 */}
-      <div className="bg-white p-5 rounded-lg shadow-sm">
-        <h2 className="text-xl font-semibold mb-4 text-blue-700">
-          Participant 1
-        </h2>
+    <div className="p-6 space-y-6">
+      <h2 className="text-xl font-bold">Match Making</h2>
 
-        {/* Gender on Top */}
-        <div className="flex flex-col mb-4">
-          <label className="text-sm font-medium mb-1">Gender</label>
-          <div className="flex gap-3 mt-1">
-            <button
-              type="button"
-              className={`px-4 py-2 border rounded-md w-full ${
-                p1Gender === "M"
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "border-gray-300"
-              }`}
-              onClick={() => setP1Gender("M")}
-            >
-              Male
-            </button>
-            <button
-              type="button"
-              className={`px-4 py-2 border rounded-md w-full ${
-                p1Gender === "F"
-                  ? "bg-pink-500 text-white border-pink-500"
-                  : "border-gray-300"
-              }`}
-              onClick={() => setP1Gender("F")}
-            >
-              Female
-            </button>
-          </div>
-        </div>
+      {/* SELECT PARTICIPANT */}
+      <select
+        className="border px-3 py-2 w-full"
+        value={participantId}
+        onChange={(e) => {
+          setParticipantId(e.target.value);
+          setSelectedLikes([]);
+        }}
+      >
+        <option value="">Choose Participant</option>
+        {members.map((m) => (
+          <option key={m._id} value={m._id}>
+            {m.number} -{m.fullName} - ({m.gender})
+          </option>
+        ))}
+      </select>
 
-        {/* Number follows selected Gender */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium mb-1">Select Number</label>
-          <select
-            className="border border-gray-300 rounded-md px-3 py-2"
-            value={p1Number}
-            onChange={(e) => setP1Number(e.target.value)}
-          >
-            <option value="">Choose number...</option>
-            {members
-              .filter((m) => m.gender === p1Gender)
-              .map((m) => (
-                <option key={m.number} value={m.number}>
-                  {m.number} - {m.fullName}
-                </option>
-              ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Participant 2 */}
-      <div className="bg-white p-5 rounded-lg shadow-sm">
-        <h2 className="text-xl font-semibold mb-4 text-blue-700">
-          Participant 2 (Gender: {p2Gender})
-        </h2>
-
+      {/* OPPOSITE GENDER */}
+      {participant && (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {members
-            .filter((m) => m.gender === p2Gender && m.number !== p1Number)
+            .filter(
+              (m) => m.gender === oppositeGender && m._id !== participantId
+            )
             .map((m) => {
-              const isSelected = p2Selection.some(
-                (sel) => sel.number === m.number
-              );
-
+              const active = selectedLikes.includes(m._id);
               return (
                 <div
-                  key={m.number}
-                  role="button"
-                  onClick={() => handleP2Select(m)}
-                  className={`border rounded-lg p-4 text-center cursor-pointer transition-all ${
-                    isSelected
-                      ? "border-blue-500 bg-blue-500 text-white scale-105"
-                      : "border-gray-300 hover:border-blue-500 hover:scale-105"
+                  key={m._id}
+                  onClick={() => toggleLike(m._id)}
+                  className={`p-4 border rounded cursor-pointer ${
+                    active ? "bg-blue-600 text-white" : "hover:border-blue-500"
                   }`}
                 >
                   <p className="font-semibold">{m.fullName}</p>
-                  <p className="text-xs opacity-80">{m.number}</p>
+                  <p className="text-xs">{m.number}</p>
                 </div>
               );
             })}
         </div>
+      )}
 
-        <p className="mt-4 text-sm">
-          Selected ({p2Selection.length}/4):{" "}
-          <span className="font-medium">
-            {p2Selection.map((m) => m.fullName).join(", ")}
-          </span>
-        </p>
-      </div>
-
-      {/* Submit */}
       <button
-        onClick={handleSubmit}
         disabled={submitting}
-        className="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-sm shadow-sm disabled:opacity-50"
+        onClick={submitLikes}
+        className="w-full bg-green-600 text-white py-3 rounded"
       >
         {submitting ? "Submitting..." : "Submit Likes"}
       </button>
